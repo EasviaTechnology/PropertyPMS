@@ -1,7 +1,7 @@
 /* Optional Supabase sync. No API keys are bundled. Never use a service-role key in the browser. */
 (() => {
  'use strict';
- const SETTINGS_KEY='unityield-cloud-config-v1';
+ const SETTINGS_KEY='unityield-cloud-config-v1'; // Preserve existing cloud connection settings after rebranding.
  let config={url:'',key:'',email:''};try{config={...config,...JSON.parse(localStorage.getItem(SETTINGS_KEY)||'{}')};}catch(e){}
  let client=null,session=null,ready=false,statusMessage=config.url?'Configured · sign in to sync':'Not configured · data stays in this browser';
  let saveTimer=null,pendingData=null,doingSave=false,queue=false,lastSaved='';
@@ -20,7 +20,7 @@
    try {
     // Loaded only when a user opts into third-party cloud storage.
     const {createClient}=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
-    client=createClient(config.url,config.key,{auth:{autoRefreshToken:true,persistSession:true,detectSessionInUrl:true},global:{headers:{'X-Client-Info':'unityield-pms/1.0'}}});
+    client=createClient(config.url,config.key,{auth:{autoRefreshToken:true,persistSession:true,detectSessionInUrl:true},global:{headers:{'X-Client-Info':'estatedock-pms/1.0'}}});
     const {data,error}=await client.auth.getSession();if(error)throw error;
     session=data.session;if(session){statusMessage='Signed in · checking cloud workspace';status();await initialSync();}
     else {statusMessage='Configured · sign in to sync';status();}

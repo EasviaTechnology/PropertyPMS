@@ -1,6 +1,6 @@
 {
-  "name": "UnitYield — Property OS",
-  "short_name": "UnitYield",
+  "name": "EstateDock — Property Management",
+  "short_name": "EstateDock",
   "description": "A simple property management workspace for independent landlords",
   "start_url": "./",
   "scope": "./",
