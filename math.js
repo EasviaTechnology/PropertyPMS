@@ -26,9 +26,9 @@
     const extra=Math.max(0,+v.utilities||0)+Math.max(0,+v.other||0);
     const flow=collected-reserves-payment-extra, coc=cashIn>0?flow*12/cashIn*100:0;
     const factor=(1-vacancy)*(1-(clamp(v.maintenance,0,100)+clamp(v.capex,0,100)+clamp(v.management,0,100))/100);
-    function rentNeeded(desiredMonthlyFlow) {return units*factor>0 ? (payment+extra+desiredMonthlyFlow)/(units*factor) : NaN;}
+    function rentNeeded(desiredMonthlyFlow) {return occupied*factor>0 ? (payment+extra+desiredMonthlyFlow)/(occupied*factor) : NaN;}
     const targetRoiRent=rentNeeded(cashIn*clamp(v.targetRoi,0,1000)/1200);
-    const targetUnitRent=rentNeeded(Math.max(0,+v.targetCash||0)*units);
+    const targetUnitRent=rentNeeded(Math.max(0,+v.targetCash||0)*occupied);
     return {price,units,loan,baseLoan,upfront,loanResult,tax,insurance,hoa,miMonthly,payment,cashIn, collected,reserves,extra,flow,coc,targetRoiRent,targetUnitRent,remainingYearOne:remaining(loan,rate,years,12)};
   }
   root.UnitMath={clamp,mortgage,remaining,analyze};
