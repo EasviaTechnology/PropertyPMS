@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f7fa">
+  <meta name="description" content="UnitYield — a modern property management workspace for independent real estate investors.">
+  <title>UnitYield | Property OS</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="UnitYield">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+  <script src="math.js" defer></script>
+  <script src="cloud.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="logo" href="#overview" id="brand" aria-label="UnitYield overview">
+        <span class="logo-symbol" aria-hidden="true"><svg width="25" height="25" viewBox="0 0 24 24" fill="none"><path d="M3.5 10.3 12 3l8.5 7.3M6.5 9.5v10.8h11V9.5M10 20.3v-6.2h4v6.2" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span><strong>unityield<span class="logo-period">.</span></strong><small>PROPERTY OS</small></span>
+      </a>
+      <div class="workspace-choice">
+        <span class="tiny-label">WORKSPACE</span>
+        <button id="workspaceBtn" type="button" class="workspace-button" title="Edit workspace details">
+          <span class="workspace-avatar" id="workspaceInitial">U</span>
+          <span class="workspace-name" id="workspaceName">My Portfolio</span>
+          <span class="nav-chevron">⌄</span>
+        </button>
+      </div>
+      <nav aria-label="Main navigation" class="nav-menu" id="navMenu">
+        <div class="nav-heading">WORKSPACE</div>
+        <button class="nav-item active" data-route="overview" type="button"><span data-icon="layout-dashboard"></span> Overview</button>
+        <button class="nav-item" data-route="properties" type="button"><span data-icon="building-2"></span> Properties</button>
+        <button class="nav-item" data-route="units" type="button"><span data-icon="door-open"></span> Units</button>
+        <button class="nav-item" data-route="tenants" type="button"><span data-icon="users-round"></span> Residents</button>
+        <button class="nav-item" data-route="leases" type="button"><span data-icon="file-signature"></span> Leases</button>
+        <div class="nav-heading separate">OPERATIONS</div>
+        <button class="nav-item" data-route="rent" type="button"><span data-icon="wallet"></span> Rent & payments <span class="nav-count" id="rentNavCount" hidden></span></button>
+        <button class="nav-item" data-route="expenses" type="button"><span data-icon="file-text"></span> Expenses</button>
+        <button class="nav-item" data-route="maintenance" type="button"><span data-icon="wrench"></span> Maintenance <span class="nav-count" id="maintenanceNavCount" hidden></span></button>
+        <button class="nav-item" data-route="tasks" type="button"><span data-icon="check-check"></span> Tasks</button>
+        <button class="nav-item" data-route="calendar" type="button"><span data-icon="calendar-days"></span> Calendar</button>
+        <div class="nav-heading separate">TOOLS</div>
+        <button class="nav-item" data-route="more" type="button"><span data-icon="ellipsis"></span> More <span class="nav-chevron">›</span></button>
+      </nav>
+      <div class="sidebar-foot">
+        <div class="sync-line"><span class="sync-indicator" id="syncIndicator"></span><span id="syncLabel">Stored on this device</span></div>
+        <div class="sidebar-meta">UnitYield v1.0 · Independent investors</div>
+      </div>
+    </aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop" hidden></div>
+    <div class="main-area">
+      <header class="topbar">
+        <div class="top-left"><button id="menuToggle" class="icon-button menu-toggle" type="button" aria-label="Open menu"><span data-icon="menu"></span></button><div class="crumb"><span class="crumb-app">Workspace</span><span class="crumb-sep">/</span><span id="crumbPage">Overview</span></div></div>
+        <div class="top-right"><div class="search-wrap"><span data-icon="search"></span><input type="search" id="globalSearch" aria-label="Search current page" placeholder="Search this view..." autocomplete="off"><kbd>/</kbd></div><button class="icon-button" id="helpButton" title="Help and product limitations" aria-label="Help" type="button"><span data-icon="circle-help"></span></button><button class="btn btn-primary top-new" type="button" id="newButton"><span data-icon="plus"></span><span>Add new</span></button><div class="user-avatar" id="userAvatar" title="Workspace">MP</div></div>
+      </header>
+      <main id="mainContent" class="main-content" tabindex="-1"></main>
+    </div>
+  </div>
+  <div id="modalRoot" class="modal-root" hidden></div>
+  <div id="toastRoot" class="toast-root" aria-live="polite"></div>
+</body>
+</html>
