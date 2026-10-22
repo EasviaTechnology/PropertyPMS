@@ -95,3 +95,106 @@ input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-ou
 .profile-section-heading .btn{font-size:11px;padding:8px 11px}
 .resident-history .cell-sub{max-width:400px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.5}
 .resident-history>div>span{display:flex;gap:4px;flex:none}
+
+
+/* EstateDock v3 · hotel PMS-inspired portfolio overview. */
+.pms-dashboard .page-intro{margin-bottom:23px}
+.pms-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-bottom:27px;align-items:stretch}
+.pms-group{min-width:0;display:flex;flex-direction:column}
+.pms-group-head{height:53px;display:flex;align-items:flex-start;justify-content:center;gap:4px;flex-direction:column;padding:0 5px}
+.pms-group-head h2{font-size:14px;color:#293e56;font-weight:740;margin:0;letter-spacing:-.15px}
+.pms-group-head>span{font-size:9px;color:#96a5b7;letter-spacing:1.05px;font-weight:720}
+.pms-metric-grid{border:1px solid #dce4ed;border-radius:9px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));background:#fff;overflow:hidden;flex:1}
+.pms-metric{position:relative;min-height:141px;padding:25px 9px 17px;background:#fff;border:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:5px;color:#25354c;transition:background .14s;min-width:0}
+.pms-metric:nth-child(odd){border-right:1px solid #e4e9ef}
+.pms-metric:nth-child(-n+2){border-bottom:1px solid #e4e9ef}
+.pms-metric:hover{background:#f7faff}
+.pms-metric:focus-visible{outline:3px solid #90b1ff;outline-offset:-4px;z-index:1}
+.pms-metric-top{display:flex;align-items:center;justify-content:center;width:100%;gap:7px}
+.pms-metric-value{font-size:clamp(24px,2.45vw,35px);font-weight:610;letter-spacing:-1.3px;line-height:1.16;white-space:nowrap;font-variant-numeric:tabular-nums}
+.pms-metric-arrow{position:absolute;right:12px;top:11px;color:#b0bccb;opacity:0;transition:opacity .14s}
+.pms-metric-arrow svg{width:14px;height:14px}
+.pms-metric:hover .pms-metric-arrow,.pms-metric:focus-visible .pms-metric-arrow{opacity:1}
+.pms-metric-label{font-size:12px;font-weight:540;text-align:center;color:#40526a;line-height:1.3}
+.pms-metric-hint{font-size:9px;color:#9eabba;line-height:1.25;text-align:center}
+.pms-group-foot{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:11px 5px 0;color:#8191a5;font-size:10px;min-height:32px}
+.pms-foot-note{font-weight:650;color:#5c7089}.pms-foot-divide{color:#bac3ce}
+.pms-action-heading{display:flex;align-items:baseline;gap:12px;margin:0 0 12px}
+.pms-action-heading h2{font-size:14px;font-weight:750;color:#2f4058;margin:0}.pms-action-heading span{font-size:11px;color:#95a3b3}
+.pms-shortcut-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 18px;margin-bottom:25px}
+.pms-shortcut{min-height:59px;padding:12px 16px;border-radius:8px;border:1px solid #d8e1eb;background:#fff;color:#526179;font-size:12px;font-weight:680;display:flex;align-items:center;justify-content:center;gap:12px;transition:background .14s,border-color .14s,transform .14s}
+.pms-shortcut>svg{width:17px;height:17px;color:#6c86a8}
+.pms-shortcut:hover{background:#f3f7fc;border-color:#adbfda;transform:translateY(-1px)}
+.pms-shortcut.is-primary{background:#2387ec;border-color:#2387ec;color:#fff;box-shadow:0 2px 6px #247be41a}
+.pms-shortcut.is-primary>svg{color:#fff}
+.pms-shortcut.is-primary:hover{background:#136fd3;border-color:#136fd3}
+.pms-shortcut-arrow{display:none;margin-left:auto}.pms-shortcut-arrow svg{width:15px;height:15px}
+.pms-bottom-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-bottom:18px}
+.pms-bottom-panel{padding:20px 22px;min-height:218px}
+.pms-bottom-heading{display:flex;align-items:start;justify-content:space-between;gap:10px;padding-bottom:12px;border-bottom:1px solid #edf1f6}
+.pms-bottom-heading h2{margin:0;font-size:13px;font-weight:750;color:#2c4058}
+.pms-bottom-heading p{margin:4px 0 0;font-size:11px;color:#99a7b6}
+.pms-attention-list,.pms-property-list{display:flex;flex-direction:column}
+.pms-attention-item,.pms-property-line{width:100%;display:flex;align-items:center;text-align:left;border:0;border-bottom:1px solid #eef1f5;background:transparent;padding:13px 0;gap:12px;min-width:0}
+.pms-attention-item:last-child,.pms-property-line:last-child{border-bottom:0}
+.pms-attention-item:hover,.pms-property-line:hover{background:#f9fbfe}
+.pms-attention-icon,.pms-property-symbol{flex:none;width:31px;height:31px;display:grid;place-items:center;background:#f0f5fc;border-radius:8px;color:#567bb5}
+.pms-attention-icon svg,.pms-property-symbol svg{width:16px;height:16px}
+.pms-attention-item>span:nth-child(2),.pms-property-info{min-width:0;flex:1;display:flex;flex-direction:column;gap:4px}
+.pms-attention-item strong,.pms-property-info strong{font-size:11.5px;color:#34465d;font-weight:710;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pms-attention-item small,.pms-property-info small{font-size:10.5px;color:#8d9aac;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pms-attention-open,.pms-property-line>svg{color:#a9b5c6;flex:none}
+.pms-attention-open svg,.pms-property-line>svg{width:15px;height:15px}
+.pms-property-occ{display:flex;flex-direction:column;gap:3px;text-align:right;flex:none}
+.pms-property-occ strong{font-size:12px;color:#344861;font-weight:730;font-variant-numeric:tabular-nums}
+.pms-property-occ small{color:#9eaabc;font-size:10px}
+.pms-quiet-empty{padding:41px 12px;text-align:center;font-size:12px;color:#93a0b0}
+.pms-onboarding{display:flex;align-items:center;gap:16px;border:1px solid #d8e4f5;background:#f4f8ff;border-radius:10px;padding:16px 18px;margin-bottom:18px}
+.pms-onboarding-icon{width:39px;height:39px;border-radius:10px;flex:none;display:grid;place-items:center;background:#e6efff;color:#4974c2}
+.pms-onboarding-icon svg{width:20px;height:20px}
+.pms-onboarding>div{flex:1}.pms-onboarding strong{font-size:12px;color:#344d71}.pms-onboarding p{font-size:11px;color:#7b8ca4;margin:5px 0 0;line-height:1.5}
+@media(max-width:1250px){.pms-summary-grid{gap:11px}.pms-shortcut-grid{gap:10px}.pms-metric{min-height:121px}.pms-metric-value{font-size:clamp(21px,2.3vw,31px)}.pms-metric-label{font-size:11px}}
+@media(max-width:1050px){.pms-summary-grid{grid-template-columns:1fr 1fr}.pms-summary-grid .pms-group:last-child{grid-column:1/-1}.pms-shortcut-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:720px){.pms-summary-grid{grid-template-columns:1fr;gap:14px}.pms-summary-grid .pms-group:last-child{grid-column:auto}.pms-group-head{height:38px}.pms-metric{min-height:113px}.pms-metric-value{font-size:28px}.pms-bottom-grid{grid-template-columns:1fr}.pms-shortcut-grid{grid-template-columns:1fr 1fr;gap:9px}.pms-shortcut{min-height:54px;font-size:11px;padding:8px 10px;gap:6px}.pms-onboarding{align-items:flex-start;flex-wrap:wrap}.pms-onboarding .btn{width:100%}.pms-dashboard .intro-actions{width:auto}}
+@media(max-width:425px){.pms-shortcut-grid{grid-template-columns:1fr}.pms-shortcut{justify-content:flex-start}.pms-shortcut-arrow{display:inline-flex}.pms-metric-value{font-size:26px}.pms-bottom-panel{padding:15px 13px}.pms-action-heading{flex-wrap:wrap}}
+
+/* EstateDock v4 — unified, branded dropdown controls.
+   These enhance native selects without changing existing form values. */
+.ed-choice {width:100%;position:relative;min-width:0}
+.ed-choice-native {position:absolute!important;width:1px!important;height:1px!important;min-height:0!important;left:0;top:50%;opacity:0!important;pointer-events:none!important;padding:0!important;border:0!important;z-index:-1}
+.ed-choice-button {height:39px;width:100%;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:0 12px 0 13px;background:linear-gradient(180deg,#fff 0%,#fbfcff 100%);color:#293f5c;border:1px solid #dce5f0;border-radius:10px;box-shadow:0 1px 2px rgba(23,47,79,.025);font-size:12px;font-weight:630;text-align:left;letter-spacing:0;transition:border-color .16s,background .16s,box-shadow .16s,transform .16s}
+.ed-choice-button:hover:not(:disabled) {background:#f8faff;border-color:#aebfda;box-shadow:0 2px 8px rgba(25,62,115,.055)}
+.ed-choice-button:focus-visible,.ed-choice-button.is-open {outline:none;border-color:#7398e0;background:#fff;box-shadow:0 0 0 3px rgba(75,117,203,.13),0 3px 10px rgba(42,84,143,.06)}
+.ed-choice-button:disabled{opacity:.5;cursor:not-allowed;background:#f2f5f8}
+.ed-choice-button.is-placeholder .ed-choice-label{color:#8d9aab;font-weight:500}
+.ed-choice-label{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.ed-choice-chevron{color:#7890ae;flex:none;display:grid;place-items:center;transition:transform .2s,color .15s}
+.ed-choice-button:hover .ed-choice-chevron,.ed-choice-button.is-open .ed-choice-chevron{color:#3168c7}
+.ed-choice-button.is-open .ed-choice-chevron{transform:rotate(180deg)}
+.data-toolbar>.ed-choice,.toolbar-left>.ed-choice{width:auto;min-width:176px;max-width:260px}
+.data-toolbar .ed-choice-button{height:37px;min-width:158px}
+.ed-dropdown{position:fixed;z-index:400;display:flex;flex-direction:column;min-height:60px;border:1px solid #e0e7f1;border-radius:13px;padding:6px;background:#fff;box-shadow:0 22px 56px rgba(24,47,78,.17),0 4px 14px rgba(24,47,78,.065);animation:ed-drop-in .15s ease-out;overflow:hidden}
+.ed-dropdown.above{animation-name:ed-drop-up}
+.ed-dropdown-heading{flex:none;margin:0 2px;padding:9px 11px 8px;color:#8897aa;font-size:10px;letter-spacing:.09em;text-transform:uppercase;font-weight:800;border-bottom:1px solid #eef1f6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ed-options{overflow-y:auto;overscroll-behavior:contain;padding:5px 0 1px;min-height:0;scrollbar-width:thin;scrollbar-color:#ccd7e6 transparent}
+.ed-option {display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:37px;border:0;border-radius:8px;padding:9px 10px 9px 12px;color:#40546f;background:transparent;text-align:left;font-weight:570;font-size:12px;line-height:1.3;transition:background .12s ease,color .12s ease}
+.ed-option-label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ed-option:hover:not(:disabled),.ed-option:focus-visible{background:#f2f6fd;color:#214fa0;outline:0}
+.ed-option.is-selected{background:#edf3ff;color:#255abb;font-weight:760}
+.ed-option.is-empty-option{color:#96a3b6;font-style:italic;font-weight:520}
+.ed-option.is-empty-option.is-selected{color:#476aa3}
+.ed-option:disabled{opacity:.38;cursor:not-allowed}
+.ed-option-tick{display:grid;place-items:center;flex:none;color:#326acb;opacity:0}
+.ed-option.is-selected .ed-option-tick{opacity:1}
+.ed-dropdown-search{display:flex;gap:9px;align-items:center;flex:none;margin:8px 5px 4px;padding:0 11px;height:37px;border:1px solid #e3eaf3;border-radius:8px;color:#8496ad;background:#f8faff}
+.ed-dropdown-search:focus-within{background:#fff;border-color:#8ba9e6;box-shadow:0 0 0 3px #e9f0ff}
+.ed-dropdown-search input{border:0;outline:0;min-width:0;width:100%;height:100%;background:transparent;color:#283f5c;font-size:12px}
+.ed-dropdown-search input::placeholder{color:#9aabba}
+.ed-dropdown-search input::-webkit-search-cancel-button{cursor:pointer}
+.ed-no-options{padding:22px 12px;color:#899bad;font-size:12px;text-align:center}
+@keyframes ed-drop-in {from{opacity:0;transform:translateY(-5px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes ed-drop-up {from{opacity:0;transform:translateY(5px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:760px){.ed-dropdown{border-radius:12px}.ed-choice-button{min-height:42px;height:42px;font-size:12px}.ed-option{min-height:43px;font-size:12px}.data-toolbar>.ed-choice,.toolbar-left>.ed-choice{min-width:140px}}
+@media(prefers-reduced-motion:reduce){.ed-dropdown{animation:none}.ed-choice-button,.ed-choice-chevron,.ed-option{transition:none}}
+
+.ed-choice-button.is-invalid{border-color:#d9807c;box-shadow:0 0 0 3px #fff0ef}

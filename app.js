@@ -109,27 +109,85 @@ function updateChrome(){
  el('rentNavCount').textContent=due;el('rentNavCount').hidden=!due;
  el('maintenanceNavCount').textContent=work;el('maintenanceNavCount').hidden=!work;
 }
-function render(){updateChrome();const page={overview:renderOverview,properties:renderProperties,units:renderUnits,tenants:renderTenants,leases:renderLeases,rent:renderRent,expenses:renderExpenses,maintenance:renderMaintenance,tasks:renderTasks,calendar:renderCalendar,more:renderMore}[ui.route]();el('mainContent').innerHTML=page;hydrateIcons(el('mainContent'));if(ui.route==='more'&&ui.moreTab==='analyzer')updateCalc();}
+function render(){updateChrome();const page={overview:renderOverview,properties:renderProperties,units:renderUnits,tenants:renderTenants,leases:renderLeases,rent:renderRent,expenses:renderExpenses,maintenance:renderMaintenance,tasks:renderTasks,calendar:renderCalendar,more:renderMore}[ui.route]();el('mainContent').innerHTML=page;hydrateIcons(el('mainContent'));window.EstateSelects?.enhance(el('mainContent'));if(ui.route==='more'&&ui.moreTab==='analyzer')updateCalc();}
 function toast(msg,kind='success'){const div=document.createElement('div');div.className=`toast ${kind==='error'?'error':''}`;div.textContent=msg;el('toastRoot').append(div);setTimeout(()=>div.remove(),4000);}
+function overviewMetric(value,label,route,description=''){
+ const details=description?`<span class="pms-metric-hint">${safe(description)}</span>`:'';
+ return `<button type="button" class="pms-metric" data-route="${route}" aria-label="${safe(label)}: ${safe(String(value).replace(/<[^>]*>/g,''))}; open ${safe(route)}"><span class="pms-metric-top"><span class="pms-metric-value">${value}</span><span class="pms-metric-arrow" aria-hidden="true">${icon('arrow-up-right')}</span></span><span class="pms-metric-label">${safe(label)}</span>${details}</button>`;
+}
+function overviewGroup(title,sub,metrics,foot){return `<section class="pms-group" aria-label="${safe(title)} summary"><div class="pms-group-head"><h2>${safe(title)}</h2><span>${safe(sub)}</span></div><div class="pms-metric-grid">${metrics.join('')}</div><div class="pms-group-foot">${foot}</div></section>`;}
+function overviewShortcut(label,iconName,route,kind='',emphasis=false){const attributes=kind?`data-action="add" data-kind="${kind}"`:`data-route="${route}"`;return `<button type="button" class="pms-shortcut${emphasis?' is-primary':''}" ${attributes}>${icon(iconName)}<span>${safe(label)}</span><span class="pms-shortcut-arrow" aria-hidden="true">${icon('arrow-up-right')}</span></button>`;}
 function renderOverview(){
- if(!db.properties.length)return `${pageHeader('PORTFOLIO WORKSPACE','Welcome to EstateDock.','Your workspace is ready. Start by adding a property.')}<section class="panel panel-pad" style="padding:32px;max-width:760px"><div class="property-card-icon" style="margin-bottom:20px">${icon('building-2')}</div><h2 class="panel-title" style="font-size:23px;margin-bottom:9px">Add your first property</h2><p class="panel-sub" style="max-width:540px;line-height:1.65;margin-bottom:24px">Nothing has been added yet. Create a property and its units to begin tracking occupancy, residents, leases, rent, and maintenance. No sample records are included.</p><button class="btn btn-primary" data-action="add" data-kind="property">${icon('plus')} Add property</button></section>`;
- const units=rentalUnits(),occupied=units.filter(u=>unitState(u)==='Occupied').length,occupancy=units.length?occupied/units.length*100:0;
- const current=financialSummary(monthNow()),open=db.maintenance.filter(x=>x.status!=='Completed'&&(ui.property==='all'||x.propertyId===ui.property));
- const props=ui.property==='all'?db.properties:db.properties.filter(p=>p.id===ui.property);
+ const propList=ui.property==='all'?db.properties:db.properties.filter(p=>p.id===ui.property);
+ const allUnits=onlyProp(db.units,u=>u.propertyId);
+ const units=allUnits.filter(u=>u.status!=='offline');
+ const occupied=units.filter(u=>unitState(u)==='Occupied').length;
+ const vacant=units.filter(u=>unitState(u)==='Vacant').length;
+ const reserved=units.filter(u=>unitState(u)==='Reserved').length;
+ const offline=allUnits.filter(u=>u.status==='offline').length;
+ const occupancy=units.length?100*occupied/units.length:0;
+ const current=financialSummary(monthNow());
+ const open=onlyProp(db.maintenance,w=>w.propertyId).filter(w=>w.status!=='Completed');
+ const priority=open.filter(w=>w.priority==='Urgent'||w.priority==='High');
  const expiry=scopedLeases().filter(l=>l.status==='active'&&l.end>=localToday()&&l.end<=plusDays(localToday(),60)).sort((a,b)=>a.end.localeCompare(b.end));
- const tasks=onlyProp(db.tasks,x=>x.propertyId).filter(t=>!t.done).sort((a,b)=>a.dueDate.localeCompare(b.dueDate));
- const late=current.rows.filter(x=>x.remaining>0.001).sort((a,b)=>b.remaining-a.remaining);
- const todayMessage=new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
- return `${pageHeader('PORTFOLIO WORKSPACE','Good to see you.',`Here's what's happening across your properties · ${todayMessage}`,`${propertySelect()}<button class="btn btn-secondary" data-action="add" data-kind="payment">${icon('plus')} Record payment</button>`)}
- <div class="stat-grid">${statCard('Occupied units',`${occupied} <span style="color:#b3bdca;font-size:16px;font-weight:530">/ ${units.length}</span>`,`${percent(occupancy)} occupancy`,'door-open')}${statCard('Expected rent',money(current.due),'Scheduled this month','wallet')}${statCard('Rent collected',money(current.paid),`${percent(current.due?current.paid/current.due*100:0)} of monthly charges`,'circle-dollar-sign')}${statCard('Open work orders',open.length,`${open.filter(x=>x.priority==='Urgent'||x.priority==='High').length} high priority`,'wrench')}</div>
- <div class="dashboard-columns"><div class="stack">
- <section class="panel panel-pad"><div class="panel-heading"><div><h2 class="panel-title">Rent collection · ${fmtMonth(monthNow())}</h2><p class="panel-sub">Track scheduled rent against recorded payments</p></div><button class="text-link" data-route="rent">View ledger →</button></div><div class="bar-pair" style="height:12px"><div class="bar-paid" style="width:${Math.min(100,current.due?current.paid/current.due*100:0)}%"></div></div><div class="metric-line"><span>Collected <strong>${money(current.paid)}</strong></span><span>Outstanding <strong>${money(current.balance)}</strong></span></div>${late.length?late.slice(0,3).map(l=>`<div class="property-row"><div class="property-icon" style="background:#fff3e7;color:#bd833d">${icon('wallet')}</div><div><div class="property-row-title">${safe(tenantName(l.tenantId))}</div><div class="property-row-sub">${safe(unitName(l.unitId))}</div></div><div class="property-row-side"><strong>${money(l.remaining)}</strong><small>Remaining balance</small></div></div>`).join(''):'<div class="small-muted">All scheduled rent has been recorded for this month.</div>'}</section>
- <section class="panel panel-pad"><div class="panel-heading"><div><h2 class="panel-title">Your properties</h2><p class="panel-sub">Portfolio at a glance</p></div><button class="text-link" data-route="properties">All properties →</button></div>${props.length?`<div class="property-rows">${props.slice(0,5).map(p=>{const pUnits=db.units.filter(u=>u.propertyId===p.id), occ=pUnits.filter(u=>unitState(u)==='Occupied').length;return `<div class="property-row"><div class="property-icon">${icon('building-2')}</div><div><div class="property-row-title">${safe(p.name)}</div><div class="property-row-sub">${safe(p.city)}, ${safe(p.region)} · ${pUnits.length} units</div></div><div class="property-row-side"><strong>${occ}/${pUnits.length} occupied</strong><small>${pUnits.length?percent(100*occ/pUnits.length):'—'} occupancy</small></div></div>`;}).join('')}</div>`:emptyView('No properties yet','Add your first property to start building your workspace.','add','Add property')}</section>
- </div><div class="stack">
- <section class="panel panel-pad"><div class="panel-heading"><div><h2 class="panel-title">Needs attention</h2><p class="panel-sub">Prioritized daily operations</p></div></div>${!late.length&&!open.length&&!expiry.length&&!tasks.length?'<div class="small-muted">You are all caught up.</div>':''}${late.slice(0,2).map(l=>`<div class="mini-list-row"><span class="dot-icon">${icon('alert-circle')}</span><div class="mini-list-body"><div class="mini-list-title">Rent outstanding · ${safe(tenantName(l.tenantId))}</div><div class="mini-list-sub">${money(l.remaining)} · ${safe(unitName(l.unitId))}</div></div><button class="text-link" data-action="add" data-kind="payment" data-lease="${l.id}">Record</button></div>`).join('')}${open.slice(0,2).map(w=>`<div class="mini-list-row"><span class="dot-icon">${icon('wrench')}</span><div class="mini-list-body"><div class="mini-list-title">${safe(w.title)}</div><div class="mini-list-sub">${safe(unitName(w.unitId))} · ${safe(w.priority)} priority</div></div><button class="text-link" data-route="maintenance">View</button></div>`).join('')}${expiry.slice(0,2).map(l=>`<div class="mini-list-row"><span class="dot-icon">${icon('calendar-days')}</span><div class="mini-list-body"><div class="mini-list-title">Lease ending · ${safe(tenantName(l.tenantId))}</div><div class="mini-list-sub">${fmtDate(l.end)} · ${safe(unitName(l.unitId))}</div></div><button class="text-link" data-route="leases">View</button></div>`).join('')}${tasks.slice(0,2).map(t=>`<div class="mini-list-row"><span class="dot-icon">${icon('check-check')}</span><div class="mini-list-body"><div class="mini-list-title">${safe(t.title)}</div><div class="mini-list-sub">${safe(propName(t.propertyId))} · Due ${fmtShortDate(t.dueDate)}</div></div><button class="text-link" data-route="tasks">View</button></div>`).join('')}</section>
- <section class="panel panel-pad"><div class="panel-heading"><div><h2 class="panel-title">Quick actions</h2><p class="panel-sub">Common daily workflows</p></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:9px"><button class="btn btn-secondary" data-action="add" data-kind="tenant">${icon('users-round')} New resident</button><button class="btn btn-secondary" data-action="add" data-kind="lease">${icon('file-signature')} New lease</button><button class="btn btn-secondary" data-action="add" data-kind="maintenance">${icon('wrench')} Work order</button><button class="btn btn-secondary" data-action="add" data-kind="task">${icon('check-check')} Add task</button></div></section>
- <section class="panel panel-pad"><div class="panel-heading"><h2 class="panel-title">Your next steps</h2></div><div class="mini-list"><div class="mini-list-row"><span class="list-rank">01</span><div class="mini-list-body"><div class="mini-list-title">Keep lease dates current</div><div class="mini-list-sub">Rent obligations are generated from lease terms.</div></div></div><div class="mini-list-row"><span class="list-rank">02</span><div class="mini-list-body"><div class="mini-list-title">Record incoming payments</div><div class="mini-list-sub">Balances update instantly across the workspace.</div></div></div><div class="mini-list-row"><span class="list-rank">03</span><div class="mini-list-body"><div class="mini-list-title">Review outstanding work</div><div class="mini-list-sub">Keep maintenance and routine tasks on schedule.</div></div></div></div></section>
- </div></div><div class="footer-note">Figures reflect recorded information only. Scheduled rent is not prorated for partial months; no banking, accounting, legal or tenant-portal integration is included.</div>`;
+ const tasks=onlyProp(db.tasks,t=>t.propertyId).filter(t=>!t.done).sort((a,b)=>(a.dueDate||'9999').localeCompare(b.dueDate||'9999'));
+ const unpaid=current.rows.filter(l=>l.remaining>.001).sort((a,b)=>b.remaining-a.remaining);
+ const paidPct=current.due?100*current.paid/current.due:0;
+ const monthExpense=onlyProp(db.expenses,x=>x.propertyId).filter(x=>x.date?.slice(0,7)===monthNow()).reduce((sum,x)=>sum+(+x.amount||0),0);
+ const residents=new Set(scopedLeases().filter(l=>l.status==='active'&&l.start<=localToday()&&l.end>=localToday()).map(l=>l.tenantId)).size;
+ const dateLabel=new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+ const sections=[
+  overviewGroup('Portfolio','UNIT STATUS',[
+   overviewMetric(propList.length,'Properties','properties'),
+   overviewMetric(allUnits.length,'Total units','units'),
+   overviewMetric(occupied,'Occupied','units'),
+   overviewMetric(vacant,'Vacant','units')
+  ],`<span class="pms-foot-note">${units.length?percent(occupancy):'—'} occupied</span><span class="pms-foot-divide">·</span><span>${residents} residents</span><span class="pms-foot-divide">·</span><span>${reserved} reserved</span><span class="pms-foot-divide">·</span><span>${offline} offline</span>`),
+  overviewGroup('Rent & payments',fmtMonth(monthNow()).toUpperCase(),[
+   overviewMetric(money(current.due),'Expected','rent'),
+   overviewMetric(money(current.paid),'Collected','rent'),
+   overviewMetric(money(current.balance),'Outstanding','rent'),
+   overviewMetric(current.due?percent(paidPct):'—','Collection rate','rent')
+  ],`<span class="pms-foot-note">${current.rows.length} scheduled lease${current.rows.length===1?'':'s'}</span><span class="pms-foot-divide">·</span><span>${money(monthExpense)} expenses recorded</span>`),
+  overviewGroup('Operations','ACTION CENTER',[
+   overviewMetric(open.length,'Open work orders','maintenance'),
+   overviewMetric(priority.length,'High priority','maintenance'),
+   overviewMetric(expiry.length,'Leases ending','leases','Next 60 days'),
+   overviewMetric(tasks.length,'Open tasks','tasks')
+  ],`<span class="pms-foot-note">Updated from your records</span><span class="pms-foot-divide">·</span><span>Open a tile for details</span>`)
+ ];
+ let attention=[];
+ unpaid.slice(0,2).forEach(l=>attention.push({icon:'wallet',title:`Rent outstanding · ${tenantName(l.tenantId)}`,sub:`${money(l.remaining)} · ${unitName(l.unitId)}`,route:'rent'}));
+ priority.slice(0,2).forEach(w=>attention.push({icon:'wrench',title:w.title,sub:`${unitName(w.unitId)} · ${w.priority} priority`,route:'maintenance'}));
+ if(!priority.length)open.slice(0,1).forEach(w=>attention.push({icon:'wrench',title:w.title,sub:`${unitName(w.unitId)} · ${w.status}`,route:'maintenance'}));
+ expiry.slice(0,2).forEach(l=>attention.push({icon:'calendar-days',title:`Lease ending · ${tenantName(l.tenantId)}`,sub:`${fmtDate(l.end)} · ${unitName(l.unitId)}`,route:'leases'}));
+ tasks.slice(0,2).forEach(t=>attention.push({icon:'check-check',title:t.title,sub:`${propName(t.propertyId)}${t.dueDate?' · Due '+fmtShortDate(t.dueDate):''}`,route:'tasks'}));
+ const propertyRows=propList.slice(0,5).map(p=>{const pUnits=db.units.filter(u=>u.propertyId===p.id),available=pUnits.filter(u=>u.status!=='offline');const count=available.filter(u=>unitState(u)==='Occupied').length;return `<button class="pms-property-line" type="button" data-action="view-property" data-id="${safe(p.id)}"><span class="pms-property-symbol">${icon('building-2')}</span><span class="pms-property-info"><strong>${safe(p.name)}</strong><small>${safe([p.city,p.region].filter(Boolean).join(', '))} · ${pUnits.length} unit${pUnits.length===1?'':'s'}</small></span><span class="pms-property-occ"><strong>${count} / ${available.length}</strong><small>occupied</small></span>${icon('chevron-right')}</button>`;}).join('');
+ const shortcuts=[
+  overviewShortcut('Add property','building-2','','property',true),
+  overviewShortcut('New resident','users-round','','tenant'),
+  overviewShortcut('New lease','file-signature','','lease'),
+  overviewShortcut('Record payment','wallet','','payment',true),
+  overviewShortcut('Create work order','wrench','','maintenance'),
+  `<button type="button" class="pms-shortcut is-primary" data-action="open-unit-board">${icon('door-open')}<span>Unit status board</span><span class="pms-shortcut-arrow" aria-hidden="true">${icon('arrow-up-right')}</span></button>`
+ ].join('');
+ const noProperties=!db.properties.length;
+ return `<div class="pms-dashboard">
+ ${pageHeader('PROPERTY OPERATIONS','Overview',`Your portfolio at a glance · ${dateLabel}`,`${propertySelect()}<button type="button" class="btn btn-secondary" data-route="calendar">${icon('calendar-days')} Calendar</button>`)}
+ ${noProperties?`<div class="pms-onboarding"><span class="pms-onboarding-icon">${icon('building-2')}</span><div><strong>Start with your first property</strong><p>Everything starts empty. Add a property to begin tracking units, residents, rent and day-to-day operations.</p></div><button type="button" class="btn btn-primary" data-action="add" data-kind="property">${icon('plus')} Add property</button></div>`:''}
+ <div class="pms-summary-grid">${sections.join('')}</div>
+ <div class="pms-action-heading"><h2>Quick actions</h2><span>Common workflows, one click away</span></div>
+ <div class="pms-shortcut-grid">${shortcuts}</div>
+ <div class="pms-bottom-grid">
+  <section class="panel pms-bottom-panel"><div class="pms-bottom-heading"><div><h2>Needs attention</h2><p>Outstanding items from your workspace</p></div><button type="button" class="text-link" data-route="tasks">View tasks →</button></div>
+   ${attention.length?`<div class="pms-attention-list">${attention.slice(0,5).map(a=>`<button type="button" class="pms-attention-item" data-route="${a.route}"><span class="pms-attention-icon">${icon(a.icon)}</span><span><strong>${safe(a.title)}</strong><small>${safe(a.sub)}</small></span><span class="pms-attention-open">${icon('chevron-right')}</span></button>`).join('')}</div>`:`<div class="pms-quiet-empty">${noProperties?'Add a property to start tracking your portfolio.':'Nothing needs your attention right now.'}</div>`}
+  </section>
+  <section class="panel pms-bottom-panel"><div class="pms-bottom-heading"><div><h2>Property snapshot</h2><p>Occupancy by property</p></div><button type="button" class="text-link" data-route="properties">All properties →</button></div>
+   ${propertyRows?`<div class="pms-property-list">${propertyRows}</div>`:'<div class="pms-quiet-empty">No properties added yet.</div>'}
+  </section>
+ </div>
+ <div class="footer-note">Figures are based on manually recorded information. Monthly rent charges are not prorated for partial months; EstateDock does not process payments automatically.</div>
+ </div>`;
 }
 function renderProperties(){let props=filterBySearch(ui.property==='all'?db.properties:db.properties.filter(p=>p.id===ui.property),p=>p.name+' '+p.address+' '+p.city+' '+p.region);
  return `${pageHeader('PORTFOLIO','Properties','Organize single-family homes, duplexes, triplexes, fourplexes, and apartment buildings.',`<button class="btn btn-primary" data-action="add" data-kind="property">${icon('plus')} Add property</button>`)}<div class="data-toolbar"><div class="toolbar-left">${propertySelect()}<span class="toolbar-hint">${props.length} ${props.length===1?'property':'properties'}</span></div></div>${props.length?`<div class="grid-cards">${props.map(p=>{const units=db.units.filter(u=>u.propertyId===p.id),occupied=units.filter(u=>unitState(u)==='Occupied').length,monthly=units.reduce((s,u)=>s+(+activeLease(u.id)?.rent||0),0);return `<article class="property-card"><div class="property-card-top"><span class="property-card-icon">${icon('building-2')}</span>${badge(p.type,'info')}</div><h3>${safe(p.name)}</h3><p class="address">${safe(p.address)} · ${safe(p.city)}, ${safe(p.region)}</p><div class="property-card-stats"><div><small>Occupancy</small><strong>${occupied} of ${units.length} units</strong></div><div><small>Active monthly rent</small><strong>${money(monthly)}</strong></div></div><div class="property-card-actions"><button class="text-link" data-action="view-property" data-id="${p.id}">View units →</button><div class="row-actions"><button class="table-action" data-action="edit" data-kind="property" data-id="${p.id}">Edit</button><button class="table-action" data-action="delete" data-kind="property" data-id="${p.id}">Delete</button></div></div></article>`;}).join('')}</div>`:emptyView('No properties match','Add a property or clear your search to get started.','add','Add property')}`;
@@ -326,10 +384,11 @@ function openForm(kind,entityId='',extra={}){const entity=entityId&&kind!=='paym
  const spec=modalSpec(kind,entity,extra);if(spec.error){toast(spec.error,'error');return;}
  ui.modal={kind,entityId,extra};el('modalRoot').hidden=false;
  el('modalRoot').innerHTML=`<div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><form id="entityForm" data-kind="${kind}" data-id="${safe(entityId)}"><div class="modal-head"><div><h2 id="modalTitle">${safe(spec.title)}</h2><p>${safe(spec.subtitle)}</p></div><button class="modal-x" type="button" data-action="close-modal" aria-label="Close">${icon('x')}</button></div><div class="modal-body"><div class="form-grid">${spec.form}</div>${spec.warn?`<div class="note" style="margin-top:18px">${safe(spec.warn)}</div>`:''}</div><div class="modal-footer"><button class="btn btn-secondary" data-action="close-modal" type="button">Cancel</button><button class="btn btn-primary" type="submit">${entity?'Save changes':kind==='payment'?'Record payment':'Create'}</button></div></form></div>`;
- el('modalRoot').querySelector('input,select')?.focus();
+ window.EstateSelects?.enhance(el('modalRoot'));
+ el('modalRoot').querySelector('input:not([type=hidden]),textarea,.ed-choice-button')?.focus();
 }
-function openInfo(title,body){ui.modal={kind:'info'};el('modalRoot').hidden=false;el('modalRoot').innerHTML=`<div class="modal-card" role="dialog" aria-modal="true"><div class="modal-head"><h2>${safe(title)}</h2><button class="modal-x" type="button" data-action="close-modal" aria-label="Close">${icon('x')}</button></div><div class="modal-body">${body}</div><div class="modal-footer"><button class="btn btn-primary" type="button" data-action="close-modal">Close</button></div></div>`;}
-function closeModal(){ui.modal=null;el('modalRoot').hidden=true;el('modalRoot').innerHTML='';}
+function openInfo(title,body){ui.modal={kind:'info'};el('modalRoot').hidden=false;el('modalRoot').innerHTML=`<div class="modal-card" role="dialog" aria-modal="true"><div class="modal-head"><h2>${safe(title)}</h2><button class="modal-x" type="button" data-action="close-modal" aria-label="Close">${icon('x')}</button></div><div class="modal-body">${body}</div><div class="modal-footer"><button class="btn btn-primary" type="button" data-action="close-modal">Close</button></div></div>`;window.EstateSelects?.enhance(el('modalRoot'));}
+function closeModal(){window.EstateSelects?.close();ui.modal=null;el('modalRoot').hidden=true;el('modalRoot').innerHTML='';}
 function handleEntitySubmit(form){const kind=form.dataset.kind,entityId=form.dataset.id,raw=Object.fromEntries(new FormData(form).entries()),v=Object.fromEntries(Object.entries(raw).map(([k,val])=>[k,typeof val==='string'?val.trim():val]));
  const n=(key)=>Number(v[key]||0),err=(message)=>{toast(message,'error');return false;};
  if(kind==='property'){
@@ -407,6 +466,7 @@ function onAction(btn){const act=btn.dataset.action,kind=btn.dataset.kind,entity
  if(act==='deal-save'){if(!dealReady(ui.analyzer))return toast('Enter purchase price, units and rent per unit first.','error');const a={...ui.analyzer};const dealName=String(a.dealName||'').trim()||`${a.units}-unit deal · ${money(a.price)}`;delete a.dealName;let dealId=ui.editingDealId;const existing=db.deals.find(d=>d.id===dealId);if(existing){Object.assign(existing,{name:dealName,input:a,updatedAt:new Date().toISOString()});}else{dealId=id();db.deals.push({id:dealId,name:dealName,input:a,createdAt:new Date().toISOString()});}ui.selectedDeals=[...new Set([...ui.selectedDeals,dealId])].slice(-3);ui.editingDealId=dealId;record(existing?'Saved deal updated':'Deal saved for comparison',dealName);toast(existing?'Saved deal updated':'Deal saved — open Compare deals to review it.');return;}
  if(act==='deal-delete'){const d=db.deals.find(x=>x.id===entityId);if(!d)return;if(!confirm(`Remove ${d.name} from your saved comparisons?`))return;db.deals=db.deals.filter(x=>x.id!==entityId);ui.selectedDeals=ui.selectedDeals.filter(x=>x!==entityId);record('Saved deal removed',d.name);return;}
  if(act==='deal-load'){const d=db.deals.find(x=>x.id===entityId);if(!d)return;ui.analyzer={...blankAnalyzer(),...d.input,dealName:d.name};ui.editingDealId=d.id;ui.analyzerMode='advanced';render();return;}
+ if(act==='open-unit-board'){ui.unitView='board';return setRoute('units');}
  if(act==='unit-board'||act==='unit-list'){ui.unitView=act==='unit-board'?'board':'list';render();return;}
  if(act==='add')return openForm(kind,'',{unit:btn.dataset.unit,lease:btn.dataset.lease,tenant:btn.dataset.tenant});
  if(act==='edit')return openForm(kind,entityId);
